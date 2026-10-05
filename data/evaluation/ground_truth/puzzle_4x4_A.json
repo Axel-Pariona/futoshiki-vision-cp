@@ -1,0 +1,127 @@
+{
+  "type": "futoshiki",
+  "size": 4,
+  "givens": [
+    {
+      "row": 1,
+      "col": 1,
+      "value": 3
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "value": 4
+    },
+    {
+      "row": 3,
+      "col": 1,
+      "value": 4
+    }
+  ],
+  "inequalities": [
+    {
+      "cell1": [
+        0,
+        2
+      ],
+      "operator": "<",
+      "cell2": [
+        0,
+        3
+      ]
+    },
+    {
+      "cell1": [
+        0,
+        1
+      ],
+      "operator": "<",
+      "cell2": [
+        1,
+        1
+      ]
+    },
+    {
+      "cell1": [
+        0,
+        2
+      ],
+      "operator": "<",
+      "cell2": [
+        1,
+        2
+      ]
+    },
+    {
+      "cell1": [
+        1,
+        0
+      ],
+      "operator": ">",
+      "cell2": [
+        2,
+        0
+      ]
+    },
+    {
+      "cell1": [
+        1,
+        1
+      ],
+      "operator": ">",
+      "cell2": [
+        2,
+        1
+      ]
+    },
+    {
+      "cell1": [
+        2,
+        0
+      ],
+      "operator": ">",
+      "cell2": [
+        2,
+        1
+      ]
+    },
+    {
+      "cell1": [
+        2,
+        0
+      ],
+      "operator": ">",
+      "cell2": [
+        3,
+        0
+      ]
+    }
+  ],
+  "expected_status": "UNIQUE",
+  "solution": [
+    [
+      3,
+      2,
+      1,
+      4
+    ],
+    [
+      4,
+      3,
+      2,
+      1
+    ],
+    [
+      2,
+      1,
+      4,
+      3
+    ],
+    [
+      1,
+      4,
+      3,
+      2
+    ]
+  ]
+}

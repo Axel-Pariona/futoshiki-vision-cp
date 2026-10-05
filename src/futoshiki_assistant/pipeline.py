@@ -137,8 +137,10 @@ class FutoshikiPipeline:
         instance = recognition["instance"]
         details = recognition["details"]
 
+        cp_start = time.perf_counter()
         uniqueness = check_uniqueness(instance)
         solution_result = solve_futoshiki(instance)
+        cp_time = time.perf_counter() - cp_start
 
         elapsed = time.perf_counter() - start
 
@@ -194,6 +196,9 @@ class FutoshikiPipeline:
             "instance": instance,
             "details": details,
             "cp_state": uniqueness["status"],
+            "uniqueness_time": uniqueness["time"],
+            "solve_time": solution_result["solve_time"],
+            "cp_time": cp_time,
             "solution": solution_result["solution"],
             "comparison": comparison,
             "total_time": elapsed,

@@ -30,7 +30,7 @@ This separation preserves the original model metadata while keeping the final ev
 
 ## Integrity
 
-Run:
+From the repository root, run:
 
 ```bash
 sha256sum -c models/checksums.sha256

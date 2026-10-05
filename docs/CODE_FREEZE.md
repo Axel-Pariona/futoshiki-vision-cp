@@ -34,3 +34,5 @@ El dataset final se crea después de este freeze.
 Si una imagen del test final falla, el resultado se registra. No se modifica el código o los thresholds para hacer que esa misma imagen pase.
 
 Si aparece una limitación grave que obliga a cambiar el sistema, se debe crear una nueva versión y repetir el benchmark completo con un nuevo split.
+
+Dataset attached after freeze: 11 images with ground truth and manifest.

@@ -49,7 +49,7 @@ tests/                   Unit tests
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-pip install -e .
+pip install .
 ```
 
 Windows:
@@ -92,7 +92,7 @@ The notebook clones the repository, installs dependencies, verifies the model ar
 
 ## Final dataset evaluation
 
-Create `data/manifest.csv` from `data/manifest_template.csv`, then run:
+The repository already includes `data/manifest.csv` with the curated final dataset. Run:
 
 ```bash
 python scripts/evaluate_dataset.py   --manifest data/manifest.csv   --models-dir models   --output results/dataset_results.csv
@@ -126,3 +126,20 @@ The metadata stored with the V2 models is preserved separately under `models/`.
 Old V5/V5.6 notebooks and ZIP kits are development history and are intentionally not required by the final package.
 
 See `docs/GITHUB_AND_COLAB.md` for the clean GitHub/Colab workflow.
+
+
+## Validate final ground truth
+
+```bash
+python scripts/validate_ground_truth.py
+```
+
+## Dataset composition
+
+The current repository contains 11 images:
+
+- 9 main-scope evaluation cases;
+- 1 annotated-symbol stress case;
+- 1 handwritten out-of-scope stress case.
+
+See `data/DATASET_INDEX.md`.

@@ -22,7 +22,7 @@ Los 5 puntos del informe todavía no pueden darse por cerrados porque requieren 
 
 Además de la rúbrica de código/modelado, el trabajo necesita evidencia experimental y entregables:
 
-- dataset final con al menos 10 imágenes;
+- dataset final con al menos 10 imágenes; **listo: 11 imágenes organizadas**;
 - condiciones visuales variadas;
 - ground truth por puzzle lógico;
 - métricas de visión;

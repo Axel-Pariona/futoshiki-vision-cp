@@ -1,34 +1,64 @@
-# Protocolo del dataset final
+# Final dataset protocol
 
-El código y los thresholds se congelan antes de crear el conjunto de prueba final.
+The code and runtime thresholds are frozen before evaluating these images.
 
-## Tamaños
+## Composition
+
+The repository contains 11 images:
+
+- 9 main-scope cases;
+- 1 colored/annotated-symbol stress case;
+- 1 handwritten out-of-scope stress case.
+
+The primary accuracy metrics must use `scope_group = main`.
+
+Stress cases are reported separately to document limitations.
+
+## Sizes
 
 - 4x4
 - 5x5
 
-## Categorías sugeridas
+## Acquisition and visual variation
 
-- digital limpia;
-- impresa frontal;
-- impresa con perspectiva ligera;
-- iluminación moderada;
-- mayor distancia manteniendo legibilidad;
-- variante generada realista dentro del alcance.
+The collection includes:
+
+- clean digital boards;
+- colored digital layouts;
+- high-contrast digital layouts;
+- real printed photographs;
+- lower-contrast photography;
+- mild perspective;
+- generated photo-like variants;
+- alternative editorial layout;
+- dense inequality layout;
+- annotated and handwritten stress cases.
 
 ## Ground truth
 
-Cada puzzle lógico debe tener un JSON exacto con:
+Every image references a JSON file under:
 
-- tamaño;
-- givens;
-- desigualdades;
-- estado lógico esperado.
+`data/evaluation/ground_truth/`
 
-Varias fotografías del mismo puzzle pueden compartir el mismo ground truth.
+Each JSON contains:
 
-## Regla de evaluación
+- board size;
+- given values;
+- inequalities;
+- expected CP status;
+- verified solution.
 
-Las imágenes del conjunto de prueba no deben utilizarse para ajustar thresholds o reentrenar modelos.
+Different visual captures of the same logical puzzle share the same ground truth.
 
-Los casos que fallen deben conservarse y documentarse si pertenecen al alcance declarado.
+## Evaluation rule
+
+Do not modify thresholds or retrain models after inspecting final test results.
+
+If an in-scope image fails, the failure remains part of the benchmark.
+
+Run:
+
+```bash
+python scripts/validate_ground_truth.py
+python scripts/evaluate_dataset.py   --manifest data/manifest.csv   --models-dir models   --output results/dataset_results.csv
+```

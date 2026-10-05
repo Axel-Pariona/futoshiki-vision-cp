@@ -8,9 +8,24 @@ from futoshiki_assistant.pipeline import FutoshikiPipeline
 from futoshiki_assistant.vision.models import load_model_bundle
 
 
+def parse_optional_int(value):
+    return int(value) if value else None
+
+
+def parse_optional_json(path):
+    if not path:
+        return None
+
+    return json.loads(
+        Path(path).read_text(
+            encoding="utf-8"
+        )
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="Evalúa el dataset final de Futoshiki.",
+        description="Evaluate the final Futoshiki image dataset."
     )
 
     parser.add_argument(
@@ -48,28 +63,24 @@ def main():
         settings,
     )
 
-    manifest_path = Path(args.manifest)
-    rows = list(
-        csv.DictReader(
-            manifest_path.open(
-                encoding="utf-8"
-            )
+    with Path(args.manifest).open(
+        encoding="utf-8"
+    ) as handle:
+        rows = list(
+            csv.DictReader(handle)
         )
-    )
 
     results = []
 
     for row in rows:
-        ground_truth = None
+        ground_truth = parse_optional_json(
+            row.get("ground_truth")
+        )
 
-        if row.get("ground_truth"):
-            ground_truth = json.loads(
-                Path(
-                    row["ground_truth"]
-                ).read_text(
-                    encoding="utf-8"
-                )
-            )
+        expected_status = row.get(
+            "expected_status",
+            "",
+        )
 
         try:
             result = pipeline.process(
@@ -78,41 +89,77 @@ def main():
                     "source_type",
                     "digital",
                 ),
-                expected_n=(
-                    int(row["size"])
-                    if row.get("size")
-                    else None
+                expected_n=parse_optional_int(
+                    row.get("size")
                 ),
                 ground_truth=ground_truth,
             )
 
             comparison = (
-                result["comparison"] or {}
+                result["comparison"]
+                or {}
+            )
+
+            cp_matches_expected = (
+                result["cp_state"]
+                == expected_status
+            ) if expected_status else None
+
+            end_to_end_success = (
+                comparison.get(
+                    "instance_exact"
+                ) is True
+                and
+                cp_matches_expected is True
             )
 
             results.append(
                 {
                     "id": row["id"],
+                    "puzzle_id": row.get("puzzle_id", ""),
                     "image": row["image"],
                     "size": result["size"],
                     "source_type": result["source_type"],
+                    "condition": row.get("condition", ""),
+                    "scope_group": row.get("scope_group", ""),
                     "detection_gate": result["detection_gate"],
                     "grid_score": result["grid_detection_score"],
                     "grid_coverage": result["grid_detection_coverage"],
                     "segmentation": result["segmentation_method"],
+                    "givens_expected": (
+                        len(ground_truth.get("givens", []))
+                        if ground_truth
+                        else ""
+                    ),
                     "givens_detected": len(
                         result["instance"]["givens"]
+                    ),
+                    "inequalities_expected": (
+                        len(
+                            ground_truth.get(
+                                "inequalities",
+                                [],
+                            )
+                        )
+                        if ground_truth
+                        else ""
                     ),
                     "inequalities_detected": len(
                         result["instance"]["inequalities"]
                     ),
-                    "cp_state": result["cp_state"],
                     "givens_exact": comparison.get("givens_exact"),
                     "inequalities_exact": comparison.get(
                         "inequalities_exact"
                     ),
                     "instance_exact": comparison.get("instance_exact"),
-                    "total_time": result["total_time"],
+                    "expected_status": expected_status,
+                    "cp_state": result["cp_state"],
+                    "cp_matches_expected": cp_matches_expected,
+                    "end_to_end_success": end_to_end_success,
+                    "uniqueness_time_s": result["uniqueness_time"],
+                    "solve_time_s": result["solve_time"],
+                    "cp_time_s": result["cp_time"],
+                    "total_time_s": result["total_time"],
                     "error": "",
                 }
             )
@@ -121,20 +168,31 @@ def main():
             results.append(
                 {
                     "id": row["id"],
+                    "puzzle_id": row.get("puzzle_id", ""),
                     "image": row["image"],
                     "size": row.get("size", ""),
                     "source_type": row.get("source_type", ""),
+                    "condition": row.get("condition", ""),
+                    "scope_group": row.get("scope_group", ""),
                     "detection_gate": "FAIL",
                     "grid_score": "",
                     "grid_coverage": "",
                     "segmentation": "",
+                    "givens_expected": "",
                     "givens_detected": "",
+                    "inequalities_expected": "",
                     "inequalities_detected": "",
-                    "cp_state": "",
                     "givens_exact": "",
                     "inequalities_exact": "",
                     "instance_exact": "",
-                    "total_time": "",
+                    "expected_status": expected_status,
+                    "cp_state": "",
+                    "cp_matches_expected": "",
+                    "end_to_end_success": False,
+                    "uniqueness_time_s": "",
+                    "solve_time_s": "",
+                    "cp_time_s": "",
+                    "total_time_s": "",
                     "error": str(error),
                 }
             )
@@ -145,8 +203,6 @@ def main():
         exist_ok=True,
     )
 
-    fieldnames = list(results[0].keys())
-
     with output.open(
         "w",
         newline="",
@@ -154,14 +210,16 @@ def main():
     ) as handle:
         writer = csv.DictWriter(
             handle,
-            fieldnames=fieldnames,
+            fieldnames=list(
+                results[0].keys()
+            ),
         )
 
         writer.writeheader()
         writer.writerows(results)
 
     print(
-        f"Resultados guardados en {output}"
+        f"Results saved to {output}"
     )
 
 
