@@ -1,12 +1,12 @@
 # Final evaluation dataset
 
-The repository contains **11 evaluation images**:
+The repository contains **12 evaluation images**:
 
-- **9 main-scope cases** used for the primary evaluation.
+- **10 main-scope cases** used for the primary evaluation.
 - **1 stress case** with colored/annotated inequality symbols.
 - **1 out-of-scope stress case** containing handwritten completion values.
 
-All images have an explicit ground-truth JSON. Several photographs may share the same logical puzzle.
+All images have an explicit ground-truth JSON. Different visual captures may share the same logical puzzle.
 
 ## Images
 
@@ -23,13 +23,49 @@ All images have an explicit ground-truth JSON. Several photographs may share the
 | eval_09 | 5x5 | digital | digital_book_cover | main | puzzle_5x5_E |
 | eval_10 | 4x4 | digital | digital_dense_inequalities | main | puzzle_4x4_C |
 | eval_11 | 5x5 | digital | handwritten_completion | stress_out_of_scope | puzzle_5x5_F |
+| eval_12 | 4x4 | printed_photo | real_photo_frontal_clean | main | puzzle_4x4_A |
+
+## Main benchmark
+
+Primary metrics are calculated only for:
+
+`scope_group = main`
+
+This gives **10 official evaluation images**.
+
+Frozen results:
+
+| Metric | Result |
+|---|---:|
+| Board detection success | 100% |
+| Givens exact | 90% |
+| Inequalities exact | 70% |
+| Instance exact | 70% |
+| CP status accuracy | 90% |
+| End-to-end success | 70% |
+
+## Stress cases
+
+`eval_08` and `eval_11` are reported separately to document behavior outside or at the edge of the declared scope.
+
+They are not included in the main accuracy figures.
+
+## Shared logical puzzles
+
+`eval_01` and `eval_05` represent the same logical 5x5 puzzle under different acquisition conditions.
+
+`eval_04` and `eval_12` represent the same logical 4x4 puzzle under different acquisition conditions.
+
+This makes it possible to compare perception performance while keeping the underlying CP instance fixed.
 
 ## Experimental policy
 
-Primary metrics should be reported for `scope_group = main`.
+The dataset was organized after code freeze.
 
-Stress cases should be reported separately and used to discuss limitations. They should not be mixed with the main accuracy figure without clearly labeling the difference.
+Final test images were not used to:
 
-`eval_01` and `eval_05` represent the same logical puzzle under different acquisition conditions, allowing a direct comparison between clean digital input and a real photograph.
+- retune thresholds;
+- retrain the models;
+- replace failed samples.
 
-The dataset was organized after code freeze. Final test images must not be used to retune thresholds or retrain the models.
+Failures inside the declared scope remain part of the benchmark.

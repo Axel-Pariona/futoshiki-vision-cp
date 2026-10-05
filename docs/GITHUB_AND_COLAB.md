@@ -1,41 +1,56 @@
 # GitHub and Colab reproducibility
 
-## Recommended repository
+## Repository
 
-Name:
-
-`futoshiki-vision-cp`
+`https://github.com/Axel-Pariona/futoshiki-vision-cp`
 
 Description:
 
 `End-to-end Futoshiki solver from images using computer vision and OR-Tools CP-SAT.`
 
-## Files that belong in the repository
+## Repository contents
 
-Upload the contents of this repository directly. Do not upload development ZIP files inside the repository.
+The final repository contains:
 
-The trained `.pt` files are included because they are small enough for regular Git hosting.
+- clean Python source code;
+- trained model artifacts;
+- runtime configuration;
+- automated tests;
+- reproducible Colab notebook;
+- final dataset and ground truth;
+- frozen benchmark results;
+- documentation.
 
-Development artifacts such as `Futoshiki_V5_Full_Kit.zip`, `Imagenes.zip` and old experimental notebooks should remain outside the final repository.
+Development ZIP files and obsolete experimental notebooks are intentionally excluded from the final workflow.
 
 ## Colab
 
-Open:
+Use:
 
 `notebooks/colab_reproducible.ipynb`
 
-Change only:
+Set:
 
 ```python
-GITHUB_USER = "your-github-user"
+GITHUB_USER = "Axel-Pariona"
+REPO_NAME = "futoshiki-vision-cp"
+BRANCH = "main"
 ```
 
-The notebook clones the repository, installs dependencies, verifies model hashes, runs tests and executes one uploaded image through the complete pipeline.
+The notebook:
+
+1. clones the repository;
+2. installs dependencies;
+3. verifies model hashes;
+4. runs the automated tests;
+5. lets the user upload one 4x4 or 5x5 image;
+6. executes the complete end-to-end pipeline;
+7. shows detection, rectification, segmentation, perception and final solution overlays.
 
 ## Local reproduction
 
 ```bash
-git clone https://github.com/YOUR_USER/futoshiki-vision-cp.git
+git clone https://github.com/Axel-Pariona/futoshiki-vision-cp.git
 cd futoshiki-vision-cp
 
 python -m venv .venv
@@ -54,22 +69,58 @@ Windows activation:
 .venv\Scripts\activate
 ```
 
-## Final dataset
-
-After the code freeze, add the curated evaluation images under:
-
-`data/evaluation/images/`
-
-and the exact JSON ground truth under:
-
-`data/evaluation/ground_truth/`
-
-Then create:
-
-`data/manifest.csv`
-
-and run:
+## Ground-truth validation
 
 ```bash
-python scripts/evaluate_dataset.py   --manifest data/manifest.csv   --models-dir models   --output results/dataset_results.csv
+python scripts/validate_ground_truth.py
 ```
+
+## Final benchmark
+
+```bash
+python scripts/evaluate_dataset.py \
+  --manifest data/manifest.csv \
+  --models-dir models \
+  --config config/default.json \
+  --output results/dataset_results.csv
+```
+
+Frozen benchmark results are stored in:
+
+`data/evaluation/results/`
+
+## Final dataset composition
+
+- 10 main-scope cases;
+- 1 stress case;
+- 1 out-of-scope stress case;
+- 12 images total.
+
+## Final benchmark metrics
+
+Main-scope results:
+
+- board detection success: 100%;
+- givens exact: 90%;
+- inequalities exact: 70%;
+- complete instance exact: 70%;
+- CP status accuracy: 90%;
+- end-to-end success: 70%.
+
+Mean times:
+
+- CP total: 5.34 ms;
+- complete pipeline: 700.16 ms.
+
+## Experimental policy
+
+The final benchmark is frozen.
+
+Final test images must not be used to:
+
+- retune thresholds;
+- retrain the models;
+- remove failed cases;
+- alter ground truth.
+
+Any future modification requires a new experimental version and a complete rerun.

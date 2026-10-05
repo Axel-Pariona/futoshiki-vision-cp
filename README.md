@@ -34,7 +34,7 @@ Image
 
 ```text
 config/                  Final runtime thresholds
-data/evaluation/         Final evaluation dataset
+data/evaluation/         Final evaluation dataset and benchmark results
 docs/                    Scope, rubric and reproducibility notes
 models/                  Trained model artifacts
 notebooks/               Minimal Colab reproduction notebook
@@ -70,16 +70,26 @@ sha256sum -c models/checksums.sha256
 pytest -q
 ```
 
+The final repository contains eight automated tests covering the CP solver, uniqueness, reification, schema validation and visual presence scoring.
+
 ## Run one image
 
 ```bash
-python -m futoshiki_assistant   --image path/to/image.jpg   --models-dir models   --source-type printed_photo   --output-dir results/example
+python -m futoshiki_assistant \
+  --image path/to/image.jpg \
+  --models-dir models \
+  --source-type printed_photo \
+  --output-dir results/example
 ```
 
 For a clean digital input:
 
 ```bash
-python -m futoshiki_assistant   --image path/to/board.png   --models-dir models   --source-type digital   --output-dir results/example
+python -m futoshiki_assistant \
+  --image path/to/board.png \
+  --models-dir models \
+  --source-type digital \
+  --output-dir results/example
 ```
 
 ## Colab reproduction
@@ -88,15 +98,78 @@ Use:
 
 `notebooks/colab_reproducible.ipynb`
 
-The notebook clones the repository, installs dependencies, verifies the model artifacts, runs tests and processes an uploaded image end-to-end.
+The notebook clones the repository, installs dependencies, verifies model hashes, runs the automated tests and processes one uploaded image end-to-end.
 
-## Final dataset evaluation
+## Final dataset
 
-The repository already includes `data/manifest.csv` with the curated final dataset. Run:
+The final dataset contains **12 images**:
+
+- **10 main-scope evaluation cases** used for the official metrics;
+- **1 stress case** with colored/annotated inequality symbols;
+- **1 out-of-scope stress case** containing handwritten completion values.
+
+The vision evaluation is restricted to 4x4 and 5x5 boards. The logical CP model remains parameterized for `N x N`.
+
+Dataset files:
+
+```text
+data/
+  manifest.csv
+  evaluation/
+    images/
+    ground_truth/
+    results/
+```
+
+## Validate final ground truth
 
 ```bash
-python scripts/evaluate_dataset.py   --manifest data/manifest.csv   --models-dir models   --output results/dataset_results.csv
+python scripts/validate_ground_truth.py
 ```
+
+All ground-truth puzzles used in the benchmark are expected to return `UNIQUE`.
+
+## Reproduce the final benchmark
+
+```bash
+python scripts/evaluate_dataset.py \
+  --manifest data/manifest.csv \
+  --models-dir models \
+  --config config/default.json \
+  --output results/dataset_results.csv
+```
+
+The frozen benchmark artifacts are versioned under:
+
+```text
+data/evaluation/results/
+  dataset_results_final.csv
+  summary_metrics_final.csv
+  summary_metrics_final.json
+```
+
+## Final benchmark results
+
+Official metrics are calculated only over the 10 cases with `scope_group = main`.
+
+| Metric | Result |
+|---|---:|
+| Board detection success | 100% |
+| Givens exact | 90% |
+| Inequalities exact | 70% |
+| Complete instance exact | 70% |
+| CP status accuracy | 90% |
+| End-to-end success | 70% |
+| Mean CP time | 5.34 ms |
+| Mean total pipeline time | 700.16 ms |
+
+The corresponding error rates are:
+
+- givens error rate: **10%**;
+- inequalities error rate: **30%**;
+- end-to-end error rate: **30%**.
+
+Stress cases are reported separately and are not mixed with the main accuracy figures.
 
 ## Constraint Programming
 
@@ -111,7 +184,9 @@ and adds:
 - equality constraints for given values;
 - `<` or `>` constraints between adjacent cells.
 
-`src/futoshiki_assistant/cp/joint.py` contains the advanced perception-aware model with boolean interpretation variables, `AddExactlyOne`, reified constraints and integer-scaled `-log(p)` costs.
+The base model is a CSP without an objective function.
+
+`src/futoshiki_assistant/cp/joint.py` contains the advanced perception-aware extension with boolean interpretation variables, `AddExactlyOne`, reified constraints and integer-scaled `-log(p)` costs. This extension is implemented but is not mixed with the official deterministic benchmark.
 
 ## Final runtime configuration
 
@@ -119,27 +194,24 @@ All operational thresholds used for the final evaluation are centralized in:
 
 `config/default.json`
 
-The metadata stored with the V2 models is preserved separately under `models/`.
+The final benchmark was executed after freezing these parameters. Final test images were not used to retune thresholds or retrain the models.
 
-## Development artifacts
+## Reproducibility
 
-Old V5/V5.6 notebooks and ZIP kits are development history and are intentionally not required by the final package.
+The project provides:
 
-See `docs/GITHUB_AND_COLAB.md` for the clean GitHub/Colab workflow.
+- source code and trained model artifacts;
+- SHA-256 checksums for the model files;
+- `requirements.txt` and `pyproject.toml`;
+- automated tests;
+- a reproducible Colab notebook;
+- final dataset manifest and ground truth;
+- frozen benchmark CSV/JSON results.
 
+## Code and report
 
-## Validate final ground truth
+Repository:
 
-```bash
-python scripts/validate_ground_truth.py
-```
+`https://github.com/Axel-Pariona/futoshiki-vision-cp`
 
-## Dataset composition
-
-The current repository contains 11 images:
-
-- 9 main-scope evaluation cases;
-- 1 annotated-symbol stress case;
-- 1 handwritten out-of-scope stress case.
-
-See `data/DATASET_INDEX.md`.
+The final report documents the computer-vision pipeline, the formal CP model, global and reified constraints, integration, experimental protocol, benchmark results, complexity and solver timings.

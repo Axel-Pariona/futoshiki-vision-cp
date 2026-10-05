@@ -1,21 +1,23 @@
 # Final repository: `futoshiki-vision-cp`
 
-# Code freeze
+# Code, dataset and results freeze
 
-Versión base congelada para construir el dataset final.
+This document records the configuration used for the final benchmark and report.
 
-## Alcance de visión
+## Vision scope
 
 - 4x4
 - 5x5
-- imágenes digitales
-- fotografías impresas
-- perspectiva frontal o ligera
-- tablero completo
-- iluminación legible
-- marco exterior visible en el formato principal de evaluación
+- digital images
+- printed photographs
+- frontal or light perspective
+- complete board visible
+- sufficient illumination
+- visible outer frame in the main evaluation format
 
-## Parámetros congelados
+The CP model remains parameterized for `N x N`.
+
+## Frozen runtime parameters
 
 - `digit_presence_threshold = 0.010`
 - `inequality_min_confidence = 0.75`
@@ -25,14 +27,56 @@ Versión base congelada para construir el dataset final.
 - `detection_coverage_fail = 0.80`
 - `output_size = 900`
 
-Los valores están centralizados en `config/default.json`.
+All values are centralized in:
 
-## Regla experimental
+`config/default.json`
 
-El dataset final se crea después de este freeze.
+## Freeze policy
 
-Si una imagen del test final falla, el resultado se registra. No se modifica el código o los thresholds para hacer que esa misma imagen pase.
+The final test dataset was evaluated after freezing the code and runtime thresholds.
 
-Si aparece una limitación grave que obliga a cambiar el sistema, se debe crear una nueva versión y repetir el benchmark completo con un nuevo split.
+After inspecting the final benchmark:
 
-Dataset attached after freeze: 11 images with ground truth and manifest.
+- thresholds were not retuned;
+- models were not retrained;
+- failed in-scope images were not removed;
+- ground truth was not altered to match predictions.
+
+Any future model or threshold change must create a new experimental version and rerun the full benchmark.
+
+## Frozen dataset
+
+The final dataset contains:
+
+- 10 main-scope cases;
+- 1 stress case;
+- 1 out-of-scope stress case;
+- 12 images in total.
+
+Manifest:
+
+`data/manifest.csv`
+
+## Frozen results
+
+Final benchmark files:
+
+```text
+data/evaluation/results/
+  dataset_results_final.csv
+  summary_metrics_final.csv
+  summary_metrics_final.json
+```
+
+Main-scope metrics:
+
+- board detection success: 100%;
+- givens exact: 90%;
+- inequalities exact: 70%;
+- complete instance exact: 70%;
+- CP status accuracy: 90%;
+- end-to-end success: 70%;
+- mean CP time: 5.34 ms;
+- mean total pipeline time: 700.16 ms.
+
+These are the values used in the final report.

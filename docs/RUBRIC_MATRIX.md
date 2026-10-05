@@ -1,42 +1,50 @@
-# Matriz de cumplimiento de la rúbrica
+# Matriz final de cumplimiento de la rúbrica
 
-Esta matriz separa lo que ya está cerrado en código de la evidencia que todavía depende del dataset, el informe y la presentación.
+Esta matriz relaciona cada criterio con evidencia concreta del repositorio y del informe final.
 
-| Criterio de rúbrica | Puntaje | Evidencia preparada | Estado |
+| Criterio de rúbrica | Puntaje | Evidencia | Estado |
 |---|---:|---|---|
-| Pipeline de visión computacional | 3 | `vision/detection.py`, `vision/segmentation.py`, `vision/metrics.py` | Código cerrado |
-| Reconocimiento visual | 1 | `vision/models.py`, `vision/recognition.py`, gates de dígitos y desigualdades | Código cerrado; benchmark pendiente |
-| Formulación CP | 3 | `cp/model.py`, variables `1..N`, givens y desigualdades | Cerrado |
-| Restricciones globales eficientes | 3 | `AddAllDifferent` por fila y columna | Cerrado |
-| Restricciones reificadas | 1 | `cp/joint.py`, `AddExactlyOne`, `OnlyEnforceIf`, `reify_less_than` | Cerrado |
-| Integración visión a CP | 1 | `pipeline.py`: imagen -> instancia -> CP | Cerrado |
-| Visualización de resultado | 1 | `vision/overlay.py`: segmentación, percepción y solución | Cerrado |
-| Código limpio y modular | 2 | paquete `src/`, CLI, tests, configuración centralizada | Cerrado |
-| Informe IEEE-like / LaTeX | 5 | se redactará después del benchmark | Pendiente |
+| Precisión de grilla, números y símbolos | 3 | `vision/detection.py`, `vision/segmentation.py`, `vision/recognition.py`, benchmark final | Cubierto y medido |
+| Diferentes condiciones de imagen | 1 | 10 casos main + 2 stress, `data/manifest.csv` | Cubierto |
+| Formulación matemática CP | 3 | `cp/model.py`, informe final, variables/dominos/givens/desigualdades | Cubierto |
+| Restricciones globales eficientes | 3 | `AddAllDifferent` por fila y columna | Cubierto |
+| Restricciones reificadas | 1 | `cp/joint.py`, `AddExactlyOne`, `OnlyEnforceIf`, `reify_less_than` | Cubierto |
+| Integración visión -> CP | 1 | `pipeline.py`: imagen -> instancia -> CP | Cubierto |
+| Visualización clara | 1 | `vision/overlay.py`: segmentación, percepción y solución | Cubierto |
+| Código limpio y modular | 2 | paquete `src/`, CLI, tests, configuración centralizada | Cubierto |
+| Informe IEEE-like / LaTeX | 5 | informe final en LaTeX/PDF | Cubierto |
 
-Total asociado directamente al código antes del informe: **15/15 puntos técnicamente cubiertos**.
+## Evidencia experimental final
 
-Los 5 puntos del informe todavía no pueden darse por cerrados porque requieren redactar y presentar la evidencia experimental.
+Dataset:
 
-## Entregables obligatorios que todavía faltan
+- 10 imágenes main;
+- 2 casos stress;
+- 12 imágenes totales.
 
-Además de la rúbrica de código/modelado, el trabajo necesita evidencia experimental y entregables:
+Resultados main:
 
-- dataset final con al menos 10 imágenes; **listo: 11 imágenes organizadas**;
-- condiciones visuales variadas;
-- ground truth por puzzle lógico;
-- métricas de visión;
-- tiempos de solver;
-- análisis de errores;
-- README y requirements reproducibles;
-- informe final;
-- demo aproximada de cinco minutos.
+- detección de tablero: 100%;
+- givens exactos: 90%;
+- desigualdades exactas: 70%;
+- instancia completa exacta: 70%;
+- estado CP correcto: 90%;
+- éxito end-to-end: 70%.
 
-README, requirements, CLI y scripts de evaluación ya están preparados en este repositorio. El dataset y sus resultados todavía deben construirse.
+Tiempos:
 
-## Evidencia de Constraint Programming
+- chequeo de unicidad: 1.18 ms;
+- resolución de una solución: 2.48 ms;
+- CP total: 5.34 ms;
+- pipeline total: 700.16 ms.
 
-El informe debe explicar explícitamente:
+Tasas de error complementarias:
+
+- givens: 10%;
+- desigualdades: 30%;
+- end-to-end: 30%.
+
+## Constraint Programming
 
 ### Modelo base
 
@@ -51,15 +59,15 @@ Restricciones:
 - `x[r,c] = value` para givens;
 - `x[a] < x[b]` o `x[a] > x[b]` para desigualdades.
 
-El modelo base es un CSP, no un COP.
+El modelo base es un CSP sin objetivo.
 
-### Global constraints
+### Restricciones globales
 
-`AllDifferent` se usa directamente en vez de descomponer filas y columnas en múltiples desigualdades binarias.
+Se usa `AddAllDifferent` directamente para filas y columnas, en lugar de descomponer la condición en desigualdades binarias por pares.
 
 ### Reificación
 
-`reify_less_than()` implementa equivalencia completa:
+`reify_less_than()` implementa:
 
 `B <-> (A < C)`
 
@@ -68,39 +76,65 @@ mediante:
 - `A < C` si `B`;
 - `A >= C` si `not B`.
 
-El modelo probabilístico usa variables booleanas para seleccionar `<`, `>` o `blank`, junto con `AddExactlyOne`.
+El módulo probabilístico usa variables booleanas para seleccionar `<`, `>` o `blank`, junto con `AddExactlyOne`.
 
 ### COP probabilístico
 
-El modo avanzado convierte probabilidades visuales en costos enteros:
+La extensión avanzada transforma probabilidades visuales en costos enteros:
 
 `cost = -log(p) * scale`
 
 y minimiza la suma de los costos de las interpretaciones seleccionadas.
 
-## Evidencia que debe producir el dataset final
+Esta extensión está implementada, pero no se mezcla con las métricas del benchmark determinista final.
 
-Para cada imagen se debe registrar al menos:
+## Integración y visualización
 
-- detección correcta del tablero;
-- tamaño 4x4 o 5x5;
-- givens detectados;
-- desigualdades detectadas;
-- `givens_exact`;
-- `inequalities_exact`;
-- `instance_exact`;
-- estado CP;
-- éxito end-to-end;
-- tiempo total;
-- tiempo de CP;
-- condición de captura;
-- observaciones de error.
+`FutoshikiPipeline.process()` realiza automáticamente:
 
-## Regla de congelamiento
+```text
+imagen
+-> detección
+-> rectificación
+-> segmentación
+-> reconocimiento
+-> instancia JSON
+-> CP-SAT
+-> chequeo de unicidad
+-> solución
+-> overlays
+```
 
-A partir de esta versión:
+El sistema produce vistas de:
 
-- no se ajustan thresholds usando el test final;
-- no se reentrenan modelos con imágenes del test final;
-- cualquier ajuste futuro requiere separar development y test;
-- los fallos dentro del alcance se conservan en los resultados.
+- detección del tablero;
+- tablero rectificado;
+- segmentación;
+- percepción;
+- solución rectificada;
+- solución proyectada sobre la imagen original.
+
+## Reproducibilidad
+
+El repositorio incluye:
+
+- `requirements.txt`;
+- `pyproject.toml`;
+- checksums SHA-256 de modelos;
+- ocho tests automatizados;
+- notebook reproducible en Colab;
+- dataset, manifest y ground truth;
+- resultados finales congelados;
+- código y configuración centralizados.
+
+## Entregables
+
+- código GitHub: completo;
+- modelos: completos;
+- dataset >= 10 imágenes: completo;
+- ground truth: completo;
+- benchmark y métricas: completos;
+- análisis de errores: completo;
+- tiempos del solver: completos;
+- informe LaTeX/PDF: completo;
+- demo/presentación de máximo 5 minutos: siguiente entregable a preparar.
