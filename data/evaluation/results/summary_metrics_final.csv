@@ -1,0 +1,13 @@
+metric,value
+main_cases,10.0
+stress_cases,2.0
+board_detection_success_rate,1.0
+givens_exact_rate,0.9
+inequalities_exact_rate,0.7
+instance_exact_rate,0.7
+cp_status_accuracy,0.9
+end_to_end_success_rate,0.7
+mean_uniqueness_time_s,0.00118412420001728
+mean_solve_time_s,0.0024763966000136495
+mean_cp_time_s,0.0053360265000037006
+mean_total_time_s,0.7001561479999736
