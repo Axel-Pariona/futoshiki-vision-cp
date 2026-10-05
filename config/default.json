@@ -1,0 +1,20 @@
+{
+  "supported_sizes": [
+    4,
+    5
+  ],
+  "output_size": 900,
+  "segmentation_mode": "auto",
+  "digit_presence_threshold": 0.01,
+  "inequality_min_confidence": 0.75,
+  "inequality_margin_vs_blank": 0.2,
+  "detection_score_fail": 0.7,
+  "detection_score_warning": 0.85,
+  "detection_coverage_fail": 0.8,
+  "scope_min_board_area_ratio": 0.18,
+  "scope_max_board_area_ratio": 0.8,
+  "scope_min_margin_ratio": 0.04,
+  "scope_max_perspective_ratio": 1.2,
+  "scope_min_blur_score": 120.0,
+  "scope_min_brightness": 65.0
+}

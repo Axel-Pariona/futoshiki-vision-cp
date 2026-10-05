@@ -1,0 +1,22 @@
+{
+    "roi_size": 64,
+    "presence_threshold": 0.0011250000000000001,
+    "digit_classes": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+    ],
+    "inequality_classes": [
+        "blank",
+        "<",
+        ">"
+    ],
+    "supported_sizes": [
+        4,
+        5,
+        6
+    ]
+}

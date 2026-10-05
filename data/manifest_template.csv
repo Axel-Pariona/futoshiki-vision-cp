@@ -1,0 +1,3 @@
+id,image,size,source_type,condition,ground_truth,split
+4x4_01,data/evaluation/images/4x4_01.png,4,digital,digital_clean,data/evaluation/ground_truth/puzzle_4x4.json,test
+5x5_01,data/evaluation/images/5x5_01.jpg,5,printed_photo,frontal_clean,data/evaluation/ground_truth/puzzle_5x5.json,test
